@@ -17,12 +17,15 @@ class socket_controller :
 	def recieved_syn_packet() :
 		while True :
 			data, addr = sock.recvfrom(2048)
+			
 			if str(addr[0]) == self.expected_client_ip :
+				return str(addr[0])
+			else :
+				print('received pkt from not expected ip addr')
+				return str(addr[0])
 				
 		soc
 
-def received_syn_from(sock) :
-	ad
 def main() :
 	host_ip = sys.argv[1]
 	host_port = sys.argv[2]
@@ -34,7 +37,9 @@ def main() :
 	server_socket.bind((host_ip, host_port))
 	controller = socket_controller(server_socket)
 
-	if received_syn_from(server_socket) :
+	sender_ip = controller.recieved_syn_packet()
+	controller.handshake_with(sender_ip)
+	
 
 	print("listening from... : " + str(server_socket.getsockname()))
 	while True :
@@ -51,8 +56,8 @@ def main() :
 				if printcount % 8 == 0 :
 					print()
 				printcount+= 1
-			IpHeader().reconstruct_from(data)
-			TcpHeader().reconstruct_from(data[20:])
+			IpHeader().reconstruct_with(data)
+			TcpHeader().reconstruct_with(data[20:])
 		"""
 		if tcp_socket
 		"""

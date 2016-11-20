@@ -70,12 +70,13 @@ class IpHeader :
 										self.dest_ip_addr)
 		return binary_ip_header
 
-	def reconstruct_from(self, data) :
-		raw_ip_header = struct.unpack("!BBHHHBBHII", data[:20])
+	def reconstruct_with(self, data) :
+		raw_ip_header = struct.unpack("!BBHHHBBH4s4s", data[:20])
 		version_ihl = raw_ip_header[0]
 		self.version = version_ihl >> 4
 		self.ip_header_length = (version_ihl & 0xf) * 4
-		# More element to unpack(), but unused (skipped in this progam)
+
+
 		return self
 	
 class TcpHeader :
@@ -120,18 +121,19 @@ class TcpHeader :
 		self.data = data
 		return self
 
-	def reconstruct_from(self, raw_tcpheader) :
-		raw_tcp_header = struct.unpack("HHLLBBHHH", raw_tcpheader)
+	def reconstruct_with(self, raw_tcpheader) :
+		raw_tcp_header = struct.unpack("!HHLLBBHHH", raw_tcpheader)
 		self.source_port = raw_tcp_header[0]
 		self.dest_port = raw_tcp_header[1]
 		self.sequence_number = raw_tcp_header[2]
 		self.acknowledge_number = raw_tcp_header[3]
-
-		flags = raw_tcp_header[4]
+		self.data_offset = (raw_tcp_header[4] >> 4)
+		flags = raw_tcp_header[5]
 		self.tcpflag_syn = (flags >> 1) & 0x1
 		self.tcpflag_ack = (flags >> 4) & 0x1
-
+		self.window = tcp_header[6]
 		self.checksum = tcp_header[7]
+		self.urgent_pointer = tcp_header[8]
 
 
 	def get_tcp_struct(self) :
