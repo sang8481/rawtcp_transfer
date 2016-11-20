@@ -73,7 +73,7 @@ class ip_header :
 	def reconstruct_from(self, data) :
 		raw_ip_header = struct.unpack("!BBHHHBBHII", data[:20])
 		for byte in raw_ip_header :
-			print(byte.hex())
+			print(byte)
 		return 0
 	
 class tcp_header :
