@@ -121,6 +121,13 @@ class TcpHeader :
 		self.data = data
 		return self
 
+	def is_syn(self) :
+		return self.tcpflag_syn == 1
+
+	def is_ack(self) :
+		return self.tcpflag_ack == 1
+	
+
 	def reconstruct_with(self, raw_tcpheader) :
 		raw_tcp_header = struct.unpack("!HHLLBBHHH", raw_tcpheader)
 		self.source_port = raw_tcp_header[0]

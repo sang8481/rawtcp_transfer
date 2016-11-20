@@ -12,11 +12,14 @@ if len(sys.argv) < 3 :
 class socket_controller :
 	def __init__(self, server_socket, expected_client_ip) :
 		self.sock = server_socket
+		self.host_ip = server_socket.getsockname()[0]
 		self.expected_client_ip = expected_client_ip
 	
 	def recieved_syn_packet() :
 		while True :
 			data, addr = sock.recvfrom(2048)
+			
+			
 			
 			if str(addr[0]) == self.expected_client_ip :
 				return str(addr[0])
@@ -24,7 +27,8 @@ class socket_controller :
 				print('received pkt from not expected ip addr')
 				return str(addr[0])
 				
-		soc
+	def handshake_with(client_ip) :
+		print("trying to shake")
 
 def main() :
 	host_ip = sys.argv[1]
