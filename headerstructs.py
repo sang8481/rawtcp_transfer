@@ -39,8 +39,8 @@ import struct
 import socket
 import sys
 
-class ip_header :
-	def __init__(self, ip_tuple = ('', '')) :
+class IpHeader :
+	def __init__(self, ip_tuple = ('0.0.0.0', '0.0.0.0')) :
 		self.version = 4 
 		self.ip_header_length = 5
 		self.type_of_service = 0
@@ -72,12 +72,14 @@ class ip_header :
 
 	def reconstruct_from(self, data) :
 		raw_ip_header = struct.unpack("!BBHHHBBHII", data[:20])
-		for byte in raw_ip_header :
-			print(byte.hex())
-		return 0
+		version_ihl = raw_ip_header[0]
+		self.version = version_ihl >> 4
+		self.ip_header_length = (version_ihl & 0xf) * 4
+		# More element to unpack(), but unused (skipped in this progam)
+		return self
 	
-class tcp_header :
-	def __init__(self, port_tuple = (0, 0), ip_tuple = ('', ''), payload_data = b'') :
+class TcpHeader :
+	def __init__(self, port_tuple = (0, 0), ip_tuple = ('0.0.0.0', '0.0.0.0')) :
 		self.ip_tuple = ip_tuple
 		self.source_port = port_tuple[0]
 		self.dest_port = port_tuple[1]
@@ -97,7 +99,7 @@ class tcp_header :
 		self.option_kind = 0
 		self.option_legnth = 0
 		self.mss_size = 0
-		self.data = payload_data
+		self.data = b''
 
 	def syn(self) :
 		self.tcpflag_syn = 1
@@ -113,10 +115,24 @@ class tcp_header :
 		self.option_legnth = 4
 		self.mss_size = mss_size
 		return self
-
-	def checksum(self, checksum) :
-		self.checksum = checksum
+	
+	def data(self, data) :
+		self.data = data
 		return self
+
+	def reconstruct_from(self, raw_tcpheader) :
+		raw_tcp_header = struct.unpack("HHLLBBHHH", raw_tcpheader)
+		self.source_port = raw_tcp_header[0]
+		self.dest_port = raw_tcp_header[1]
+		self.sequence_number = raw_tcp_header[2]
+		self.acknowledge_number = raw_tcp_header[3]
+
+		flags = raw_tcp_header[4]
+		self.tcpflag_syn = (flags >> 1) & 0x1
+		self.tcpflag_ack = (flags >> 4) & 0x1
+
+		self.checksum = tcp_header[7]
+
 
 	def get_tcp_struct(self) :
 		data_offset_multiplied = (self.data_offset << 4)
